@@ -4,4 +4,5 @@ abstract class PostsDataSource {
   Future<List<Post>> getAllPosts();
   Future<Post> createPost(Post createdPost);
   Future<Post> updatePost(Post updatedPost);
+  Future<Post> getPostById(String postId);
 }

@@ -17,6 +17,13 @@ class Post {
     );
   }
 
+  factory Post.create({
+    required title,
+    required description,
+  }) {
+    return Post(id: "id-temp", title: title, description: description);
+  }
+
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'],

@@ -14,7 +14,7 @@ class FakePostsDataSource extends PostsDataSource {
   @override
   Future<Post> createPost(Post createdPost) async {
     await Future.delayed(const Duration(seconds: 1));
-    _fakePosts.add(createdPost);
+    _fakePosts.add(createdPost.copyWith(id: (_fakePosts.length + 1).toString()));
     return createdPost;
   }
 
@@ -32,6 +32,13 @@ class FakePostsDataSource extends PostsDataSource {
       _fakePosts[index] = updatedPost;
     }
     return updatedPost;
+  }
+
+  @override
+  Future<Post> getPostById(String postId) async {
+    await Future.delayed(const Duration(seconds: 1));
+    final index = _fakePosts.indexWhere((post) => post.id == postId);
+    return _fakePosts.elementAt(index);
   }
 
 

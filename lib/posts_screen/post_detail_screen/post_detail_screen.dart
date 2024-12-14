@@ -1,33 +1,128 @@
 import 'package:al2_2024_bloc/posts_screen/posts_bloc/posts_bloc.dart';
+import 'package:al2_2024_bloc/shared/models/post.dart';
+import 'package:al2_2024_bloc/shared/services/posts_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../shared/app_exception.dart';
 
-class CreatePostScreen extends StatefulWidget {
-  static void navigateTo(BuildContext context) {
-    Navigator.pushNamed(context, '/posts/create');
+class PostDetailScreen extends StatefulWidget {
+  static void navigateTo(BuildContext context, String postId) {
+    Navigator.of(context)
+        .pushNamed('/posts/details/:post_id', arguments: postId);
   }
 
-  const CreatePostScreen({super.key});
+  final String postId;
+
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  State<PostDetailScreen> createState() => _PostDetailScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
+class _PostDetailScreenState extends State<PostDetailScreen> {
+  Post? post;
+  String? id;
   String? title;
   String? description;
   String? titleError;
   String? descriptionError;
+  bool editMode = false;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPost();
+  }
+
+  Future<void> _loadPost() async {
+    try {
+      PostsRepository repository = context.read<PostsRepository>();
+      Post fetchedPost = await repository.getPostById(widget.postId);
+      setState(() {
+        post = fetchedPost;
+        id = fetchedPost.id;
+        title = fetchedPost.title;
+        description = fetchedPost.description;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog(e);
+    }
+  }
+
+  void _showErrorDialog(Object e) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Erreur"),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Détail du post"),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nouveau Post"),
-      ),
+      appBar: AppBar(title: const Text("Détail du post"), actions: [
+        editMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    editMode = false;
+                  });
+                },
+              )
+            : IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  setState(() {
+                    editMode = true;
+                  });
+                },
+              ),
+      ]),
       body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: editMode ? _editPost() : _displayPost(),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _displayPost() {
+    return [
+      Text(post!.title, style: Theme.of(context).textTheme.headlineSmall),
+      const SizedBox(height: 16),
+      Text(post!.description),
+    ];
+  }
+
+  List<Widget> _editPost() {
+    return [
+      Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,13 +148,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ),
                   maxLines: null,
                   minLines: 1,
-                  onChanged: (value) => {
-                    _handleOnChangedTitle(value)
-                  },
+                  onChanged: (value) => {_handleOnChangedTitle(value)},
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             _buildTitleErrorMessage(context),
@@ -84,9 +177,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ),
                   maxLines: null,
                   minLines: 4,
-                  onChanged: (value) => {
-                    _handleOnChangedDescription(value)
-                  },
+                  onChanged: (value) => {_handleOnChangedDescription(value)},
                 ),
               ),
             ),
@@ -94,15 +185,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => {_handleCreatePost(context)},
+                onPressed: () => {_handleUpdatePost(context)},
                 child: const Text("Poster"),
               ),
             ),
             _buildDescriptionErrorMessage(context),
           ],
         ),
-      ),
-    );
+      )
+    ];
   }
 
   void _handleOnChangedTitle(value) {
@@ -111,6 +202,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       titleError = null;
     });
   }
+
   void _handleOnChangedDescription(value) {
     description = value;
     setState(() {
@@ -118,12 +210,25 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
   }
 
-  void _handleCreatePost(BuildContext context) {
+  void _handleUpdatePost(BuildContext context) {
     try {
       if (_validForm()) {
-        final postsBloc = context.read<PostsBloc>();
-        postsBloc.add(CreatePost(title: title!, description: description!));
-        Navigator.of(context).pop();
+        if (id != null && title != null && description != null) {
+          final postsBloc = context.read<PostsBloc>();
+          postsBloc.add(UpdatePost(
+            post: Post(
+              id: id!,
+              title: title!,
+              description: description!,
+            ),
+          ));
+          setState(() {
+            editMode = false;
+            post = post!.copyWith(title: title, description: description);
+          });
+        } else {
+          print("Certaines valeurs sont nulles");
+        }
       }
     } catch (error) {
       final appException = AppException.from(error);

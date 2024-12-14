@@ -1,7 +1,7 @@
-
-
 import 'package:al2_2024_bloc/posts_screen/create_post_screen/create_post_screen.dart';
+import 'package:al2_2024_bloc/posts_screen/post_detail_screen/post_detail_screen.dart';
 import 'package:al2_2024_bloc/posts_screen/posts_bloc/posts_bloc.dart';
+import 'package:al2_2024_bloc/shared/widgets/posts/post_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,31 +25,26 @@ class _PostsScreenState extends State<PostsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Posts"),
+      ),
       body: BlocBuilder<PostsBloc, PostsState>(
         builder: (context, state) {
-          return Column(
-            children: [
-              Text('${state.status}'),
-              Expanded(
-                child: switch (state.status) {
-                  PostsStatus.loading || PostsStatus.initial => _buildLoading(context),
-                  PostsStatus.error => _buildError(context, state.exception),
-                  PostsStatus.success => _buildSuccess(context, state.posts),
-                },
-              )
-            ]
-          );
+          return switch (state.status) {
+            PostsStatus.loading ||
+            PostsStatus.initial =>
+              _buildLoading(context),
+            PostsStatus.error => _buildError(context, state.exception),
+            PostsStatus.success => _buildSuccess(context, state.posts),
+          };
         },
       ),
       floatingActionButton: ElevatedButton(
-        onPressed: () => {
-          CreatePostScreen.navigateTo(context)
-        },
+        onPressed: () => {CreatePostScreen.navigateTo(context)},
         style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.all(10),
             shape: const CircleBorder(),
-            backgroundColor: Colors.blue
-        ),
+            backgroundColor: Colors.blue),
         child: const Icon(
           Icons.add,
           color: Colors.white,
@@ -83,11 +78,17 @@ class _PostsScreenState extends State<PostsScreen> {
       },
       child: ListView.separated(
         itemCount: posts.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 20),
+        separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final post = posts[index];
-          return ListTile(
-            title: Text(post.title),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: PostCard(
+              post: post,
+              onClick: () {
+                PostDetailScreen.navigateTo(context, post.id);
+              },
+            ),
           );
         },
       ),

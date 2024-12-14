@@ -29,4 +29,12 @@ class PostsRepository {
       return newPost;
     }
   }
+
+  Future<Post> getPostById(String postId) async {
+    try {
+      return await dataSource.getPostById(postId);
+    } catch (error) {
+      throw Error();
+    }
+  }
 }
