@@ -160,7 +160,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         postsBloc.add(UpdatePost(
           post: Post(id: post!.id, title: title, description: description),
         ));
-        Navigator.of(context).pop();
+        setState(() {
+          post = post!.copyWith(title: title, description: description);
+          editMode = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Post modifié")),
         );

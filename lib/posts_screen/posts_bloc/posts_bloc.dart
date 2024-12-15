@@ -39,10 +39,8 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
         );
         await postsRepository.createPost(newPost);
 
-        final posts = await postsRepository.getAllPosts();
         emit(state.copyWith(
           status: PostsStatus.success,
-          posts: posts,
         ));
       } catch (error) {
         final appException = AppException.from(error);
@@ -58,10 +56,8 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
         emit(state.copyWith(status: PostsStatus.loading));
         await postsRepository.updatePost(event.post);
 
-        final posts = await postsRepository.getAllPosts();
         emit(state.copyWith(
           status: PostsStatus.success,
-          posts: posts,
         ));
       } catch (error) {
         final appException = AppException.from(error);
