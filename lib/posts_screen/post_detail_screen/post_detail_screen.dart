@@ -31,6 +31,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Post? post;
   bool editMode = false;
+  //todo créer le bloc avec les 4 states.
+  //Déplacer les 2 events (CreatePost et UpdatePost) dans le nouveau bloc
   bool isLoading = true;
 
   @override
