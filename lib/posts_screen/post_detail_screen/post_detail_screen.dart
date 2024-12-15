@@ -34,6 +34,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool isLoading = true;
 
   @override
+  void dispose() {
+    super.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _loadPost();
