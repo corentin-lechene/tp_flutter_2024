@@ -1,4 +1,4 @@
-
+import 'package:al2_2024_bloc/shared/app_exception.dart';
 import 'package:al2_2024_bloc/shared/services/posts_data_source/posts_data_source.dart';
 
 import '../models/post.dart';
@@ -12,21 +12,21 @@ class PostsRepository {
     try {
       return await dataSource.getAllPosts();
     } catch (error) {
-      return [];
+      throw PostsFetchError();
     }
   }
   Future<Post> createPost(Post postToAdd) async {
     try {
       return await dataSource.createPost(postToAdd);
     } catch (error) {
-      return postToAdd;
+      throw PostsCreateError();
     }
   }
   Future<Post> updatePost(Post newPost) async {
     try {
       return await dataSource.updatePost(newPost);
     } catch (error) {
-      return newPost;
+      throw PostsUpdateError();
     }
   }
 
@@ -34,7 +34,7 @@ class PostsRepository {
     try {
       return await dataSource.getPostById(postId);
     } catch (error) {
-      throw Error();
+      throw PostsNotFoundError();
     }
   }
 }

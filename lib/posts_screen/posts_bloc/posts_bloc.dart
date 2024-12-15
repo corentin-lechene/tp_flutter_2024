@@ -13,59 +13,63 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
   final PostsRepository postsRepository;
 
   PostsBloc({required this.postsRepository}) : super(const PostsState()) {
-    on<GetAllPosts>((event, emit) async {
-      try {
-        emit(state.copyWith(status: PostsStatus.loading));
-        final posts = await postsRepository.getAllPosts();
-        emit(state.copyWith(
-          status: PostsStatus.success,
-          posts: posts,
-        ));
-      } catch (error) {
-        final appException = AppException.from(error);
-        emit(state.copyWith(
-          status: PostsStatus.error,
-          exception: appException,
-        ));
-      }
-    });
+    on<GetAllPosts>(_onFetchPosts);
+    on<CreatePost>(_onCreatePost);
+    on<UpdatePost>(_onUpdatePost);
+  }
 
-    on<CreatePost>((event, emit) async {
-      try {
-        emit(state.copyWith(status: PostsStatus.loading));
-        Post newPost = Post.create(
-          title: event.title,
-          description: event.description,
-        );
-        await postsRepository.createPost(newPost);
+  Future<void> _onFetchPosts(GetAllPosts event, Emitter<PostsState> emit) async {
+    try {
+      emit(state.copyWith(status: PostsStatus.loading));
+      final posts = await postsRepository.getAllPosts();
+      emit(state.copyWith(
+        status: PostsStatus.success,
+        posts: posts,
+      ));
+    } catch (error) {
+      final appException = AppException.from(error);
+      emit(state.copyWith(
+        status: PostsStatus.error,
+        exception: appException,
+      ));
+    }
+  }
 
-        emit(state.copyWith(
-          status: PostsStatus.success,
-        ));
-      } catch (error) {
-        final appException = AppException.from(error);
-        emit(state.copyWith(
-          status: PostsStatus.error,
-          exception: appException,
-        ));
-      }
-    });
+  Future<void> _onCreatePost(CreatePost event, Emitter<PostsState> emit) async {
+    try {
+      emit(state.copyWith(status: PostsStatus.loading));
+      Post newPost = Post.create(
+        title: event.title,
+        description: event.description,
+      );
+      await postsRepository.createPost(newPost);
 
-    on<UpdatePost>((event, emit) async {
-      try {
-        emit(state.copyWith(status: PostsStatus.loading));
-        await postsRepository.updatePost(event.post);
+      emit(state.copyWith(
+        status: PostsStatus.success,
+      ));
+    } catch (error) {
+      final appException = AppException.from(error);
+      emit(state.copyWith(
+        status: PostsStatus.error,
+        exception: appException,
+      ));
+    }
+  }
 
-        emit(state.copyWith(
-          status: PostsStatus.success,
-        ));
-      } catch (error) {
-        final appException = AppException.from(error);
-        emit(state.copyWith(
-          status: PostsStatus.error,
-          exception: appException,
-        ));
-      }
-    });
+  Future<void> _onUpdatePost(UpdatePost event, Emitter<PostsState> emit) async {
+    try {
+      emit(state.copyWith(status: PostsStatus.loading));
+      await postsRepository.updatePost(event.post);
+
+      emit(state.copyWith(
+        status: PostsStatus.success,
+      ));
+    } catch (error) {
+      final appException = AppException.from(error);
+      emit(state.copyWith(
+        status: PostsStatus.error,
+        exception: appException,
+      ));
+    }
   }
 }

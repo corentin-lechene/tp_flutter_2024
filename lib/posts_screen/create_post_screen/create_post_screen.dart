@@ -62,8 +62,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   void _submitForm(BuildContext context) {
     try {
-      final title = _titleController.text;
-      final description = _descriptionController.text;
+      final title = _titleController.text.trim();
+      final description = _descriptionController.text.trim();
 
       if(title.isEmpty || description.isEmpty) {
         setState(() {

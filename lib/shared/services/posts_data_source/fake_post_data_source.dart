@@ -1,5 +1,4 @@
-
-
+import 'package:al2_2024_bloc/shared/app_exception.dart';
 import 'package:al2_2024_bloc/shared/services/posts_data_source/posts_data_source.dart';
 
 import '../../models/post.dart';
@@ -30,8 +29,10 @@ class FakePostsDataSource extends PostsDataSource {
     final index = _fakePosts.indexWhere((post) => post.id == updatedPost.id);
     if (index != -1) {
       _fakePosts[index] = updatedPost;
+      return updatedPost;
+    } else {
+      throw PostsNotFoundError();
     }
-    return updatedPost;
   }
 
   @override
@@ -40,6 +41,5 @@ class FakePostsDataSource extends PostsDataSource {
     final index = _fakePosts.indexWhere((post) => post.id == postId);
     return _fakePosts.elementAt(index);
   }
-
 
 }

@@ -9,10 +9,15 @@ import '../shared/app_exception.dart';
 import '../shared/models/post.dart';
 
 class PostsScreen extends StatefulWidget {
+  static void navigateTo(BuildContext context) {
+    Navigator.pushNamed(context, '/');
+  }
+
   const PostsScreen({super.key});
 
   @override
   State<PostsScreen> createState() => _PostsScreenState();
+
 }
 
 class _PostsScreenState extends State<PostsScreen> {
@@ -66,8 +71,16 @@ class _PostsScreenState extends State<PostsScreen> {
   }
 
   Widget _buildError(BuildContext context, AppException? exception) {
-    return Center(
-      child: Text('Error: $exception'),
+    return Column(
+      children: [
+        Center(
+          child: Text('Error: $exception'),
+        ),
+        FilledButton(
+          onPressed: () {PostsScreen.navigateTo(context);},
+          child: const Text("Retour vers les posts"),
+        ),
+      ],
     );
   }
 

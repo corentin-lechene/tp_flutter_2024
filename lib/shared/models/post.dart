@@ -17,6 +17,10 @@ class Post {
     );
   }
 
+  bool isValid() {
+    return title.isNotEmpty && description.isNotEmpty;
+  }
+
   factory Post.create({
     required title,
     required description,
